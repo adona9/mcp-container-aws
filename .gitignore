@@ -11,8 +11,8 @@ __pycache__/
 *.db
 
 # Terraform
-infra/.terraform/
-infra/.terraform.lock.hcl
-infra/terraform.tfstate
-infra/terraform.tfstate.backup
-infra/*.tfvars
+infra/**/.terraform/
+infra/**/.terraform.lock.hcl
+infra/**/terraform.tfstate
+infra/**/terraform.tfstate.backup
+infra/**/*.tfvars

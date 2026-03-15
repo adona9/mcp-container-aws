@@ -4,7 +4,7 @@ This is a demo repo to illustrate how to build an MCP server as a container and 
 
 ## Repo Structure
 
-* the "container" folder contains the Containerfile and the application code
+* the "container" folder contains the Containerfile and the application code that implements the MCP capabilities
 * the "infra" folder contains the Terraform configuration that deploys the ECS cluster, service, task configuration, and the Bedrock AgentCore resources that provides the MCP service middleware
 
 ## Prerequisites and Assumptions
