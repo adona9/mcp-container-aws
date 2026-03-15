@@ -1,0 +1,58 @@
+# ── Builder ──────────────────────────────────────────────────────────────────
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS builder
+
+# Create the non-root user that the runtime stage will reference
+RUN groupadd --gid 10001 appuser \
+ && useradd --uid 10001 --gid 10001 --no-create-home --shell /sbin/nologin appuser
+
+WORKDIR /app
+
+# Install dependencies from the lockfile (no dev deps, no editable installs)
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-dev \
+ && ln -sf /usr/local/bin/python3.12 /app/.venv/bin/python \
+ && ln -sf /usr/local/bin/python3.12 /app/.venv/bin/python3 \
+ && ln -sf /usr/local/bin/python3.12 /app/.venv/bin/python3.12
+
+# Copy application code, seed the database, fix ownership
+COPY seed_db.py server.py ./
+RUN uv run python seed_db.py \
+ && chown -R appuser:appuser /app
+
+# Stage architecture-specific shared libraries to a fixed path so the scratch
+# COPY below works identically on amd64 and arm64.
+RUN set -eux; \
+    ARCH=$(uname -m); \
+    mkdir -p /staging/lib/${ARCH}-linux-gnu; \
+    cp -a /lib/${ARCH}-linux-gnu/. /staging/lib/${ARCH}-linux-gnu/; \
+    if [ "$ARCH" = "x86_64" ]; then \
+        mkdir -p /staging/lib64; \
+        cp /lib64/ld-linux-x86-64.so.2 /staging/lib64/; \
+    elif [ "$ARCH" = "aarch64" ]; then \
+        cp /lib/ld-linux-aarch64.so.1 /staging/lib/; \
+    fi
+
+# ── Runtime ───────────────────────────────────────────────────────────────────
+FROM scratch
+
+# Minimal passwd/group files so the USER directive and os.getpwuid() work
+COPY --from=builder /etc/passwd /etc/passwd
+COPY --from=builder /etc/group  /etc/group
+
+# Python interpreter and standard library
+COPY --from=builder /usr/local/bin/python3.12           /usr/local/bin/python3.12
+COPY --from=builder /usr/local/lib/python3.12/          /usr/local/lib/python3.12/
+COPY --from=builder /usr/local/lib/libpython3.12.so.1.0 /usr/local/lib/libpython3.12.so.1.0
+
+# glibc and dynamic linker — copied from the arch-normalised staging directory
+COPY --from=builder /staging/ /
+
+# Application, virtualenv (.venv), and pre-seeded database
+COPY --from=builder --chown=10001:10001 /app /app
+
+USER 10001
+WORKDIR /app
+EXPOSE 8000
+
+# Use the virtualenv's Python so all installed packages are on sys.path
+CMD ["/app/.venv/bin/python", "server.py"]
