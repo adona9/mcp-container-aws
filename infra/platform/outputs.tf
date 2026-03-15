@@ -22,3 +22,8 @@ output "private_subnet_ids" {
   description = "IDs of the three private subnets"
   value       = aws_subnet.private[*].id
 }
+
+output "agentcore_runtime_arn" {
+  description = "ARN of the AgentCore Runtime — use this to invoke the MCP server via InvokeAgentRuntime"
+  value       = aws_bedrockagentcore_agent_runtime.this.agent_runtime_arn
+}

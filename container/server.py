@@ -11,7 +11,7 @@ from mcp.server.fastmcp import FastMCP
 
 DB_PATH = os.environ.get("DB_PATH", "cars.db")
 
-mcp = FastMCP("cars-demo")
+mcp = FastMCP("cars-demo", stateless_http=True)
 
 
 @contextmanager

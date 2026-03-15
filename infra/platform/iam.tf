@@ -1,5 +1,5 @@
 locals {
-  assume_role_policy = jsonencode({
+  ecs_assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
@@ -16,7 +16,7 @@ locals {
 
 resource "aws_iam_role" "execution" {
   name               = "${var.name}-execution-role"
-  assume_role_policy = local.assume_role_policy
+  assume_role_policy = local.ecs_assume_role_policy
 
   tags = var.tags
 }
@@ -27,12 +27,36 @@ resource "aws_iam_role_policy_attachment" "execution" {
 }
 
 # ── Task role ─────────────────────────────────────────────────────────────────
-# Used by the application process inside the container. Currently minimal;
-# will be expanded when the Bedrock AgentCore integration is added.
+# Used by the application process inside the container.
 
 resource "aws_iam_role" "task" {
   name               = "${var.name}-task-role"
-  assume_role_policy = local.assume_role_policy
+  assume_role_policy = local.ecs_assume_role_policy
 
   tags = var.tags
+}
+
+# ── AgentCore execution role ──────────────────────────────────────────────────
+# Used by AgentCore Runtime to pull the image from ECR and write logs.
+
+resource "aws_iam_role" "agentcore" {
+  name = "${var.name}-agentcore-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect    = "Allow"
+        Principal = { Service = "bedrock-agentcore.amazonaws.com" }
+        Action    = "sts:AssumeRole"
+      }
+    ]
+  })
+
+  tags = var.tags
+}
+
+resource "aws_iam_role_policy_attachment" "agentcore" {
+  role       = aws_iam_role.agentcore.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }

@@ -38,6 +38,31 @@ The container-based application is a simple demo app that includes a small SQLit
 - `search_parts` — search parts by keyword across name and description
 - `get_part` — get details about a specific part
 
+## Deployment models
+
+The same container image is deployed in two ways, giving two independent paths to the MCP server:
+
+| | ECS Fargate + internal ALB | Bedrock AgentCore Runtime |
+|---|---|---|
+| **Infrastructure** | You own VPC, subnets, ALB, ECS cluster | AWS-managed, serverless |
+| **Authentication** | None — internal ALB, VPC-only access | Built-in OAuth 2.0 (JWT) or SigV4 |
+| **Session management** | Stateless via ALB | Managed session isolation per client (`Mcp-Session-Id`) |
+| **Scaling** | Configurable `desired_count` on the ECS service | Serverless, automatic |
+| **Access** | Internal to the VPC via ALB DNS | Public AWS API endpoint (`InvokeAgentRuntime`) |
+| **When to use** | Internal tooling, VPC-bound agents | External clients, production MCP endpoints |
+
+### What AgentCore Runtime adds
+
+AgentCore Runtime is a managed container hosting environment purpose-built for MCP servers. Pointing it at the same ECR image URI gives you three things automatically:
+
+- **Authentication** — Every `InvokeAgentRuntime` call requires either a valid OAuth 2.0 JWT token (validated against a configurable discovery URL) or AWS SigV4 signing. Unauthenticated requests are rejected before they reach the container.
+- **Session management** — AgentCore injects an `Mcp-Session-Id` header so MCP clients maintain continuity across requests, even though the server itself is stateless. Session isolation means concurrent clients can't interfere with each other.
+- **Managed hosting** — No VPC endpoints, ALB, or ECS service to configure. AgentCore provisions compute, handles image pulling from ECR, manages the container lifecycle, and exposes a stable AWS API endpoint.
+
+The container must run in stateless HTTP mode (`stateless_http=True` in FastMCP) and listen on `0.0.0.0:8000/mcp` — both of which this repo already satisfies.
+
+---
+
 ## Running locally
 
 All container commands are driven by the `Makefile` in the repo root.
