@@ -10,9 +10,16 @@ __pycache__/
 # Database (generated at build time)
 *.db
 
-# Terraform
+# Terraform — downloaded providers and modules
 infra/**/.terraform/
-infra/**/.terraform.lock.hcl
+
+# Terraform — state files and lock info
 infra/**/terraform.tfstate
 infra/**/terraform.tfstate.backup
+infra/**/.terraform.tfstate.lock.info
+
+# Terraform — saved plan files
+infra/**/*.tfplan
+
+# Terraform — variable files that may contain sensitive values
 infra/**/*.tfvars

@@ -1,47 +1,47 @@
-variable "region" {
-  description = "AWS region"
-  type        = string
-  default     = "us-west-2"
-}
-
-variable "name" {
-  description = "Name prefix applied to all resources"
-  type        = string
-  default     = "cars-mcp"
-}
-
-variable "vpc_cidr" {
-  description = "CIDR block for the VPC (RFC 6598 carrier-grade NAT space)"
-  type        = string
-  default     = "100.64.0.0/16"
+variable "desired_count" {
+  type        = number
+  description = "Number of Fargate tasks to run"
+  default     = 1
 }
 
 variable "image_tag" {
-  description = "ECR image tag to deploy"
   type        = string
+  description = "ECR image tag to deploy"
   default     = "latest"
 }
 
+variable "name" {
+  type        = string
+  description = "Name prefix applied to all resources"
+  default     = "cars-mcp"
+}
+
+variable "region" {
+  type        = string
+  description = "AWS region"
+  default     = "us-west-2"
+}
+
+variable "tags" {
+  type        = map(string)
+  description = "Tags applied to all resources"
+  default     = {}
+}
+
 variable "task_cpu" {
-  description = "Fargate task CPU units (256 = 0.25 vCPU)"
   type        = number
+  description = "Fargate task CPU units (256 = 0.25 vCPU)"
   default     = 256
 }
 
 variable "task_memory" {
-  description = "Fargate task memory in MiB"
   type        = number
+  description = "Fargate task memory in MiB"
   default     = 512
 }
 
-variable "desired_count" {
-  description = "Number of Fargate tasks to run"
-  type        = number
-  default     = 1
-}
-
-variable "tags" {
-  description = "Tags applied to all resources"
-  type        = map(string)
-  default     = {}
+variable "vpc_cidr" {
+  type        = string
+  description = "CIDR block for the VPC (RFC 6598 carrier-grade NAT space)"
+  default     = "100.64.0.0/16"
 }

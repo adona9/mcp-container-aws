@@ -1,17 +1,17 @@
 variable "region" {
-  description = "AWS region"
   type        = string
+  description = "AWS region"
   default     = "us-west-2"
 }
 
 variable "repository_name" {
-  description = "Name of the ECR repository"
   type        = string
+  description = "Name of the ECR repository"
   default     = "cars-mcp-server"
 }
 
 variable "tags" {
-  description = "Tags applied to all resources"
   type        = map(string)
+  description = "Tags applied to all resources"
   default     = {}
 }

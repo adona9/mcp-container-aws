@@ -1,6 +1,6 @@
-output "repository_url" {
-  description = "Full ECR repository URL (used to tag and push images)"
-  value       = aws_ecr_repository.this.repository_url
+output "registry_id" {
+  description = "AWS account ID that owns the registry"
+  value       = aws_ecr_repository.this.registry_id
 }
 
 output "repository_arn" {
@@ -8,7 +8,7 @@ output "repository_arn" {
   value       = aws_ecr_repository.this.arn
 }
 
-output "registry_id" {
-  description = "AWS account ID that owns the registry"
-  value       = aws_ecr_repository.this.registry_id
+output "repository_url" {
+  description = "Full ECR repository URL (used to tag and push images)"
+  value       = aws_ecr_repository.this.repository_url
 }

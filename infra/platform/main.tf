@@ -1,33 +1,9 @@
-terraform {
-  required_version = ">= 1.5"
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 6.0"
-    }
-  }
-  # Uncomment and configure to store state remotely (recommended for team use):
-  # backend "s3" {
-  #   bucket = "my-tf-state"
-  #   key    = "mcp-container-aws/platform/terraform.tfstate"
-  #   region = "us-west-2"
-  # }
-}
-
-provider "aws" {
-  region = var.region
-}
-
 # Read the ECR repository URL from the ECR layer's local state file.
 data "terraform_remote_state" "ecr" {
   backend = "local"
   config = {
     path = "${path.module}/../ecr/terraform.tfstate"
   }
-}
-
-locals {
-  container_image = "${data.terraform_remote_state.ecr.outputs.repository_url}:${var.image_tag}"
 }
 
 # ── CloudWatch log group ──────────────────────────────────────────────────────
@@ -92,10 +68,10 @@ resource "aws_ecs_task_definition" "this" {
     }
   ])
 
+  tags = var.tags
+
   # Ensure the execution role policy is attached before ECS tries to use the role
   depends_on = [aws_iam_role_policy_attachment.execution]
-
-  tags = var.tags
 }
 
 # ── ECS service ───────────────────────────────────────────────────────────────
