@@ -42,7 +42,7 @@ smoke-test:
 # ── Infrastructure ────────────────────────────────────────────────────────────
 
 deploy-ecr:
-	cd infra/ecr && terraform init && terraform apply
+	cd infra/ecr && terraform init && terraform apply -auto-approve
 
 # Build for arm64 (Fargate/Graviton), authenticate to ECR, tag and push.
 # Run 'make deploy-ecr' before this target.
@@ -56,4 +56,4 @@ push: build-arm64
 
 # Run 'make push' before this target.
 deploy-platform:
-	cd infra/platform && terraform init && terraform apply
+	cd infra/platform && terraform init && terraform apply -auto-approve

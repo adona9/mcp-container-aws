@@ -17,6 +17,7 @@ This is a demo repo to illustrate how to build an MCP server as a container and 
 ### Tools
 - Python 3.11+
 - Podman
+- `qemu-user-static` — required to build arm64 images on an x86_64 host (`sudo apt-get install qemu-user-static`)
 - AWS CLI (for the AWS section)
 - Terraform 1.5+ (for the AWS section)
 
