@@ -149,7 +149,7 @@ resource "aws_lb_target_group" "this" {
   health_check {
     path                = "/mcp"
     port                = "8000"
-    matcher             = "405,406" # MCP endpoint returns 406 for a plain GET without MCP headers
+    matcher             = "405,406,421" # MCP returns 406/421 for plain GET; 421 when stateless_http=True
     healthy_threshold   = 2
     unhealthy_threshold = 3
     interval            = 30
